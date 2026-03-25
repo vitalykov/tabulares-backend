@@ -1,0 +1,73 @@
+@startuml Delivery layer
+
+' !include usecases.puml
+
+package delivery {
+
+  package model {
+
+    json MoveInput {
+      "game_uuid": "8be4df61-93ca-11d2-aa0d-00e098032b8c",
+      "player_id": 123123,
+      "move": "2 3"
+    }
+
+    json NewGameInput {
+      "name": "tic-tac-toe",
+      "players": [23123, 5432345, -2],
+      "board_width": 5,
+      "board_height": 5
+    }
+
+    json LoadGameInput {
+      "game_uuid": "8be4df61-93ca-11d2-aa0d-00e098032b8c"
+    }
+
+  } /' package model '/
+
+  package handlers {
+
+    object HTTPHandler {
+      func(ResponseWriter, Request)
+    }
+
+    interface Handlers {
+      + CreateGame() -> HTTPHandler
+      + LoadGame() -> HTTPHandler
+      + StartGame() -> HTTPHandler
+      + StopGame() -> HTTPHandler
+      + CancelGame() -> HTTPHandler
+      + MakeMove() -> HTTPHandler
+      + UndoMove() -> HTTPHandler
+    }
+    Handlers --> HTTPHandler
+
+    class GameHandlers implements Handlers {
+      - game_usecases: GameUsecases
+
+      + Handlers
+    }
+    GameHandlers --> GameUsecases
+
+  } /' package handlers '/
+
+  package mappers {
+
+    class DeliveryMappers {
+      + MoveInputToMoveInfo(MoveInput) -> MoveInfo
+      + NewGameInputToNewGameInfo(NewGameInput) -> NewGameInfo
+      + LoadGameInputToUUID(LoadGameInput) -> UUID
+    }
+    DeliveryMappers --> MoveInput
+    DeliveryMappers --> MoveInfo
+    DeliveryMappers --> NewGameInput
+    DeliveryMappers --> NewGameInfo
+    DeliveryMappers --> UUID
+    DeliveryMappers --> LoadGameInput
+
+  } /' package mappers '/
+
+} /' package delivery '/
+
+
+@enduml

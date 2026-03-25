@@ -1,0 +1,102 @@
+@startuml Domain Layer
+
+package domain {
+
+package model {
+
+  struct Figure<T FigureType> {
+    + player: int
+    + type: T
+  }
+  Figure --> FigureType
+
+  struct Board<T FigureType> {
+    + New(int, int)
+    + cells: [][]Figure<T>
+    + Width() -> int
+    + Height() -> int
+  }
+  ' Board --> FigureType
+  Board::cells --> Figure
+
+  ' interface Enum {
+  '   + Int() -> int
+  '   + String() -> string
+  ' }
+
+  interface FigureType
+
+  Enum TicTacToeType implements FigureType {
+    NO_FIGURE
+    MARK
+  }
+
+  Enum ActionType {
+    GET
+    ADD
+    REMOVE
+  }
+
+  struct Action<T FigureType> {
+    + type: ActionType
+    + figure: Figure<T>
+    + args: []int
+  }
+  ' Action --> FigureType
+  Action::type --> ActionType
+  Action::figure --> Figure
+
+  struct Move<T FigureType> {
+    + player: int
+    + actions: []Action<T>
+  }
+  ' Move --> FigureType
+  Move::actions --> Action
+
+  struct Game<T FigureType> {
+    + board: Board<T>
+    + num_players: int
+    + moves: []Move<T>
+    + turn: int
+    + winner: int
+    + additional_info: string
+  }
+  ' Game --> FigureType
+  Game::board --> Board
+  Game::moves --> Move
+
+} /' package model '/
+
+package process {
+
+  interface GameProcessor<T FigureType> {
+    + GenerateMove(Game<T>) -> Move<T>
+    + IsValidMove(Game<T>, Move<T>) -> bool
+    + GetWinner(Game<T>) -> int
+    + NextTurn(Game<T>) -> int
+  }
+  ' GameProcessor --> FigureType
+  GameProcessor --> Game
+  GameProcessor --> Move
+
+  class TicTacToeProcessor<T TicTacToeType> implements GameProcessor
+  TicTacToeProcessor --> TicTacToeType
+
+  class MoveHandler<T FigureType> <<global functions>> {
+    + MakeMove(Move<T>, Game<T>)
+    + UndoMove(Game<T>) -> Move<T>
+    - makeAction(*Action<T>, Board<T>)
+    - undoAction(*Action<T>, Board<T>)
+    - getFigure(Board<T>, int, int) -> Figure<T>
+    - addFigure(Figure<T>, Board<T>, int, int)
+    - removeFigure(Board<T>, int, int) -> Figure<T>
+  }
+  MoveHandler --> Move
+  MoveHandler --> Board
+  MoveHandler --> Game
+
+} /' package process '/
+
+} /' package domain '/
+
+@enduml

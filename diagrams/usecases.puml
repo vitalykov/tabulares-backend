@@ -1,0 +1,156 @@
+@startuml Usecases Layer
+
+' !include domain.puml
+
+package usecases {
+  
+  package model {
+
+    object PlayerID {
+      int64
+    }
+
+    object UUID {
+      [16]byte
+    }
+
+    Enum GameType {
+      TIC_TAC_TOE
+
+      + FigureType() -> FigureType
+    }
+    GameType -> FigureType
+
+    struct NewGameInfo {
+      + type: GameType
+      + board_width: int
+      + board_height: int
+      + players: []PlayerID
+      + additional_info: string
+    }
+    NewGameInfo --> PlayerID
+    NewGameInfo --> GameType
+
+    struct MoveInfo {
+      + player_id: PlayerID
+      + move_repr: string
+    }
+    MoveInfo --> PlayerID
+
+    struct GameInfo {
+      + id: UUID
+      + type: GameType
+      + board_width: int
+      + board_height: int
+      + players: []PlayerID
+      + moves: []MoveInfo
+      + winner: PlayerID
+      + additional_info: string
+    }
+    GameInfo --> UUID
+    GameInfo --> PlayerID
+    GameInfo --> MoveInfo
+    GameInfo --> GameType
+
+  } /' package model '/
+
+  package mappers {
+
+    class UsecasesMapper<T FigureType> {
+      + GameInfoToGame<T>(GameInfo) -> Game<T>
+      + NewGameInfoToGame(NewGameInfo) -> Game<T>
+      + MoveInfoToMove<T>(MoveInfo, GameInfo) -> Move<T>
+      + MoveToMoveInfo<T>(Move<T>, GameInfo) -> MoveInfo
+      - TicTacToeMoveInfoToMove(MoveInfo, GameInfo) -> Move
+      - TicTacToeMoveToMoveInfo(Move, GameInfo) -> MoveInfo
+
+      + games: map[UUID]*Game
+    }
+    UsecasesMapper --> Game
+    UsecasesMapper --> Move
+    UsecasesMapper --> UUID
+
+  } /' package mappers '/
+
+  package boundaries {
+
+    interface GameRepository {
+      + Store(GameInfo)
+      + Load(UUID) -> GameInfo
+      + Delete(UUID)
+    }
+    GameRepository --> GameInfo
+    GameRepository --> UUID
+
+    ' interface GameCreator {
+    '   + CreateGame(NewGameInfo) -> GameInfo
+    ' }
+    ' GameCreator --> GameInfo
+    ' GameCreator --> NewGameInfo
+
+    ' interface GameLoader {
+    '   + LoadGame(UUID) -> GameInfo
+    ' }
+    ' GameLoader --> GameInfo
+    ' GameLoader --> UUID
+
+    ' interface MoveMaker {
+    '   + MakeMove(*GameInfo, MoveInfo)
+    '   + UndoMove(*GameInfo)
+    ' }
+    ' MoveMaker --> GameInfo
+    ' MoveMaker --> MoveInfo
+
+    interface GameUsecases {
+      + CreateGame(NewGameInfo) -> GameInfo
+      + LoadGame(UUID) -> GameInfo
+      + StartGame(*GameInfo)
+      + StopGame(GameInfo)
+      + CancelGame(GameInfo)
+      + MakeMove(*GameInfo, MoveInfo)
+      + UndoMove(*GameInfo)
+    }
+    GameUsecases --> NewGameInfo
+    GameUsecases --> GameInfo
+    GameUsecases --> MoveInfo
+    GameUsecases --> UUID
+
+  } /' package boundaries '/
+
+  package service {
+
+    class GameInteractor {
+      + New(GameRepository, GameProcessor)
+      + StartGame(*GameInfo)
+      + StopGame(*GameInfo)
+      + MakeMove(*GameInfo, MoveInfo)
+      + UndoMove(*GameInfo)
+      + GetHint(GameInfo) -> MoveInfo
+      + CancelGame(GameInfo)
+
+      - repository: GameRepository
+      - processor: GameProcessor
+    }
+    GameInteractor --> GameInfo
+    GameInteractor --> MoveInfo
+    GameInteractor --> GameRepository
+    GameInteractor --> GameProcessor
+
+    class GameMaster {
+      + New(GameRepository)
+      + CreateGame(NewGameInfo) -> GameInfo
+      + LoadGame(UUID) -> GameInfo
+      + AddPlayer(PlayerID, GameInfo)
+
+      - repository: GameRepository
+    }
+    GameMaster --> NewGameInfo
+    GameMaster --> GameInfo
+    GameMaster --> GameRepository
+    GameMaster --> PlayerID
+
+  } /' package service '/
+
+} /' package usecases '/
+
+@enduml
