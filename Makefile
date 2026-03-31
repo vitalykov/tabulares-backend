@@ -1,7 +1,7 @@
 MAIN_WEB = cmd/web/main.go
 MAIN_CLI = cmd/cli/main.go
 APP = board-backend
-VERSION = 0.2.0
+VERSION = 0.3.0
 
 all: build-alpine
 
@@ -27,8 +27,8 @@ build-distroless:
 
 .PHONY: run-alpine
 run-alpine:
-	docker run -d -p 8080:8080 --name $(APP)-alpine $(APP):alpine-latest
-
+	docker run -it --rm -p 8080:8080 --name $(APP)-alpine $(APP):alpine-latest
+			
 .PHONY: run-distroless
 run-distroless:
 	docker run -d -p 8081:8080 --name $(APP)-distroless $(APP):distroless-latest
