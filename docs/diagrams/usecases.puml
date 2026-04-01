@@ -7,12 +7,20 @@ package usecases {
   package model {
 
     object PlayerID {
-      int64
+      UUID
     }
 
-    object UUID {
-      [16]byte
+    object GameID {
+      UUID
     }
+
+    struct User {
+      + id: PlayerID
+      + login: string
+      + password: string
+      + created_at: date
+    }
+    User --> PlayerID
 
     Enum GameType {
       TIC_TAC_TOE
@@ -38,7 +46,7 @@ package usecases {
     MoveInfo --> PlayerID
 
     struct GameInfo {
-      + id: UUID
+      + id: GameID
       + type: GameType
       + board_width: int
       + board_height: int
@@ -46,8 +54,9 @@ package usecases {
       + moves: []MoveInfo
       + winner: PlayerID
       + additional_info: string
+      + game: *Game
     }
-    GameInfo --> UUID
+    GameInfo --> GameID
     GameInfo --> PlayerID
     GameInfo --> MoveInfo
     GameInfo --> GameType
@@ -63,12 +72,9 @@ package usecases {
       + MoveToMoveInfo<T>(Move<T>, GameInfo) -> MoveInfo
       - TicTacToeMoveInfoToMove(MoveInfo, GameInfo) -> Move
       - TicTacToeMoveToMoveInfo(Move, GameInfo) -> MoveInfo
-
-      + games: map[UUID]*Game
     }
-    UsecasesMapper --> Game
     UsecasesMapper --> Move
-    UsecasesMapper --> UUID
+    UsecasesMapper --> GameID
 
   } /' package mappers '/
 
@@ -76,11 +82,11 @@ package usecases {
 
     interface GameRepository {
       + Store(GameInfo)
-      + Load(UUID) -> GameInfo
-      + Delete(UUID)
+      + Load(GameID) -> GameInfo
+      + Delete(GameID)
     }
     GameRepository --> GameInfo
-    GameRepository --> UUID
+    GameRepository --> GameID
 
     ' interface GameCreator {
     '   + CreateGame(NewGameInfo) -> GameInfo
@@ -89,10 +95,10 @@ package usecases {
     ' GameCreator --> NewGameInfo
 
     ' interface GameLoader {
-    '   + LoadGame(UUID) -> GameInfo
+    '   + LoadGame(GameID) -> GameInfo
     ' }
     ' GameLoader --> GameInfo
-    ' GameLoader --> UUID
+    ' GameLoader --> GameID
 
     ' interface MoveMaker {
     '   + MakeMove(*GameInfo, MoveInfo)
@@ -103,7 +109,7 @@ package usecases {
 
     interface GameUsecases {
       + CreateGame(NewGameInfo) -> GameInfo
-      + LoadGame(UUID) -> GameInfo
+      + LoadGame(GameID) -> GameInfo
       + StartGame(*GameInfo)
       + StopGame(GameInfo)
       + CancelGame(GameInfo)
@@ -113,7 +119,7 @@ package usecases {
     GameUsecases --> NewGameInfo
     GameUsecases --> GameInfo
     GameUsecases --> MoveInfo
-    GameUsecases --> UUID
+    GameUsecases --> GameID
 
   } /' package boundaries '/
 
@@ -139,7 +145,7 @@ package usecases {
     class GameMaster {
       + New(GameRepository)
       + CreateGame(NewGameInfo) -> GameInfo
-      + LoadGame(UUID) -> GameInfo
+      + LoadGame(GameID) -> GameInfo
       + AddPlayer(PlayerID, GameInfo)
 
       - repository: GameRepository

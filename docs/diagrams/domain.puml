@@ -24,7 +24,9 @@ package model {
   '   + String() -> string
   ' }
 
-  interface FigureType
+  interface FigureType {
+    Enum
+  }
 
   Enum TicTacToeType implements FigureType {
     NO_FIGURE
