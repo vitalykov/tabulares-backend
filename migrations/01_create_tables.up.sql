@@ -5,10 +5,10 @@ DROP TABLE IF EXISTS players;
 DROP TABLE IF EXISTS moves;
 
 CREATE TABLE users (
-	user_id     UUID PRIMARY KEY 		        DEFAULT uuidv7(),
-	login       VARCHAR(50)      NOT NULL   CHECK (octet_length(login) >= 3),
-	password    TEXT             NOT NULL   CHECK (octet_length(password) >= 8),
-	created_at 	TIMESTAMP        NOT NULL   DEFAULT CURRENT_TIMESTAMP
+	user_id     UUID PRIMARY KEY          DEFAULT uuidv7(),
+	login       VARCHAR(50)      NOT NULL CHECK (octet_length(login) >= 3),
+	password    TEXT             NOT NULL CHECK (octet_length(password) >= 8),
+	created_at 	TIMESTAMP        NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE game_types (
@@ -21,7 +21,7 @@ CREATE TABLE games (
 	type            INTEGER          NOT NULL REFERENCES game_types(game_type_id),
 	board_width     INTEGER          NOT NULL,
 	board_height    INTEGER          NOT NULL,
-	winner          UUID 	           	        REFERENCES users(user_id),
+	winner          UUID                      REFERENCES users(user_id),
 	additional_info TEXT,
 	created_at      TIMESTAMP        NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
