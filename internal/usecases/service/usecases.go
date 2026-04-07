@@ -11,11 +11,11 @@ import (
 var ErrUnknownGameType = errors.New("Unknown game type")
 
 type GameInteractorSwitch struct {
-	repository boundaries.GameRepository
+	repository boundaries.GameCacheRepository
 	processors map[uModel.GameType]any
 }
 
-func NewGameInteractorSwitch(repo boundaries.GameRepository) *GameInteractorSwitch {
+func NewGameInteractorSwitch(repo boundaries.GameCacheRepository) *GameInteractorSwitch {
 	return &GameInteractorSwitch{
 		repository: repo,
 		processors: map[uModel.GameType]any{

@@ -16,14 +16,14 @@ var (
 )
 
 type DefaultGameInteractor[T dModel.FigureType] struct {
-	repository boundaries.GameRepository
-	processor  process.GameProcessor[T]
+	cache     boundaries.GameCacheRepository
+	processor process.GameProcessor[T]
 }
 
-func NewDefaultGameInteractor[T dModel.FigureType](repo boundaries.GameRepository, processor process.GameProcessor[T]) *DefaultGameInteractor[T] {
+func NewDefaultGameInteractor[T dModel.FigureType](cache boundaries.GameCacheRepository, processor process.GameProcessor[T]) *DefaultGameInteractor[T] {
 	return &DefaultGameInteractor[T]{
-		repository: repo,
-		processor:  processor,
+		cache:     cache,
+		processor: processor,
 	}
 }
 
@@ -92,7 +92,7 @@ func (gi *DefaultGameInteractor[T]) StopGame(gameInfo *uModel.GameInfo) error {
 	if len(gameInfo.Moves) == 0 {
 		return errors.New("No moves yet. Nothing to stop")
 	}
-	err := gi.repository.Store(gameInfo)
+	err := gi.cache.Store(gameInfo)
 	if err != nil {
 		return err
 	}
@@ -101,7 +101,7 @@ func (gi *DefaultGameInteractor[T]) StopGame(gameInfo *uModel.GameInfo) error {
 }
 
 func (gi *DefaultGameInteractor[T]) CancelGame(gameInfo *uModel.GameInfo) error {
-	gi.repository.Delete(gameInfo.ID)
+	gi.cache.Delete(gameInfo.ID)
 	return nil
 }
 
