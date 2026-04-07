@@ -21,7 +21,7 @@ CREATE TABLE games (
 );
 
 CREATE TABLE players (
-	game_id   UUID    NOT NULL REFERENCES games(game_id),
+	game_id   UUID    NOT NULL REFERENCES games(game_id) ON DELETE CASCADE,
 	player_id UUID    NOT NULL REFERENCES users(user_id),
 	position  INTEGER NOT NULL,
 	PRIMARY KEY (game_id, player_id),
@@ -29,7 +29,7 @@ CREATE TABLE players (
 );
 
 CREATE TABLE moves (
-	game_id   UUID    REFERENCES games(game_id),
+	game_id   UUID    REFERENCES games(game_id) ON DELETE CASCADE,
 	player_id UUID    REFERENCES users(user_id),
 	move      TEXT,
 	position  INTEGER,
