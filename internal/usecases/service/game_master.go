@@ -48,9 +48,6 @@ func (gm GameMaster) CreateGame(newGameInfo uModel.NewGameInfo) (*uModel.GameInf
 	if err := gm.cache.Store(gameInfo); err != nil {
 		return nil, err
 	}
-	if err := gm.db.Store(gameInfo); err != nil {
-		return nil, err
-	}
 	return gameInfo, nil
 }
 

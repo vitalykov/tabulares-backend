@@ -7,6 +7,7 @@ import (
 	"strings"
 )
 
+// Deprecated
 const (
 	PlayerDelimeter   = "@"
 	MoveInfoDelimeter = "#"
@@ -16,6 +17,7 @@ var gameNameIDs = map[ucModel.GameType]int{
 	ucModel.TicTacToeType: 1,
 }
 
+// Deprecated
 func ToGameData(gameInfo *ucModel.GameInfo) repoModel.GameData {
 	return repoModel.GameData{
 		ID:             gameInfo.ID,
@@ -29,6 +31,7 @@ func ToGameData(gameInfo *ucModel.GameInfo) repoModel.GameData {
 	}
 }
 
+// Deprecated
 func joinMoves(moves []ucModel.MoveInfo) string {
 	var sb strings.Builder
 	for _, mv := range moves {
@@ -44,6 +47,7 @@ var gameTypes = map[int]ucModel.GameType{
 	1: ucModel.TicTacToeType,
 }
 
+// Deprecated
 func ToGameInfo(data repoModel.GameData) *ucModel.GameInfo {
 	return &ucModel.GameInfo{
 		ID:             data.ID,
@@ -57,6 +61,7 @@ func ToGameInfo(data repoModel.GameData) *ucModel.GameInfo {
 	}
 }
 
+// Deprecated
 // Parse string in format:
 //
 // "[playerID]@[MoveRepr]#..."
