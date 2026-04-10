@@ -1,5 +1,5 @@
 # Building
-FROM golang:1.22 AS builder
+FROM golang:1.25 AS builder
 
 WORKDIR /app
 COPY go.mod go.sum ./
@@ -10,7 +10,7 @@ RUN CGO_ENABLED=0 GOOS=linux \
     -o /app/server \
     ./cmd/web/main.go
 
-
+# Serving
 FROM alpine:3.23
 
 EXPOSE 8080

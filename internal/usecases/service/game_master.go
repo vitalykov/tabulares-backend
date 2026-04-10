@@ -12,17 +12,22 @@ import (
 )
 
 type GameMaster struct {
-	repository boundaries.GameRepository
+	cache boundaries.GameCacheRepository
+	db    boundaries.GameRepository
 }
 
-func NewGameMaster(repository boundaries.GameRepository) *GameMaster {
+func NewGameMaster(cache boundaries.GameCacheRepository, db boundaries.GameRepository) *GameMaster {
 	return &GameMaster{
-		repository: repository,
+		cache: cache,
+		db:    db,
 	}
 }
 
 func (gm GameMaster) CreateGame(newGameInfo uModel.NewGameInfo) (*uModel.GameInfo, error) {
-	gameUUID := uuid.New()
+	gameUUID, err := uuid.NewV7()
+	if err != nil {
+		return nil, err
+	}
 	var game any
 	switch newGameInfo.Type {
 	case uModel.TicTacToeType:
@@ -40,20 +45,28 @@ func (gm GameMaster) CreateGame(newGameInfo uModel.NewGameInfo) (*uModel.GameInf
 		AdditionalInfo: newGameInfo.AdditionalInfo,
 		Game:           game,
 	}
-	if err := gm.repository.Store(gameInfo); err != nil {
+	if err := gm.cache.Store(gameInfo); err != nil {
 		return nil, err
 	}
 	return gameInfo, nil
 }
 
 func (gm GameMaster) LoadGame(gameUUID uModel.UUID) (*uModel.GameInfo, error) {
-	gameInfo, err := gm.repository.Load(gameUUID)
+	gameInfo, err := gm.cache.Load(gameUUID)
+	if err == nil {
+		return gameInfo, nil
+	}
+	gameInfo, err = gm.db.Load(gameUUID)
 	if err != nil {
+		return nil, err
+	}
+	if err := gm.cache.Store(gameInfo); err != nil {
 		return nil, err
 	}
 	return gameInfo, nil
 }
 
+// Temporary unused
 func (gm GameMaster) AddPlayer(playerID uModel.PlayerID, gameInfo *uModel.GameInfo) error {
 	if slices.Contains(gameInfo.Players, playerID) {
 		return errors.New("Player already in the game")

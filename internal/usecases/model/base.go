@@ -2,21 +2,15 @@ package model
 
 import (
 	"board-games/internal/domain/model"
-	"strconv"
 
 	"github.com/google/uuid"
 )
 
 type UUID = uuid.UUID
 
-// PlayerID must be positive, zero and negative values are reserved
-type PlayerID int64
+type PlayerID = uuid.UUID
 
-func (p PlayerID) String() string {
-	return strconv.FormatInt(int64(p), 10)
-}
-
-const NoWinner PlayerID = 0
+var NoWinner PlayerID = uuid.Nil
 
 type GameType int
 

@@ -11,15 +11,17 @@ import (
 var ErrUnknownGameType = errors.New("Unknown game type")
 
 type GameInteractorSwitch struct {
-	repository boundaries.GameRepository
+	cache      boundaries.GameCacheRepository
+	db         boundaries.GameRepository
 	processors map[uModel.GameType]any
 }
 
-func NewGameInteractorSwitch(repo boundaries.GameRepository) *GameInteractorSwitch {
+func NewGameInteractorSwitch(cache boundaries.GameCacheRepository, db boundaries.GameRepository) *GameInteractorSwitch {
 	return &GameInteractorSwitch{
-		repository: repo,
+		cache: cache,
+		db:    db,
 		processors: map[uModel.GameType]any{
-			uModel.TicTacToeType: NewDefaultGameInteractor(repo, dService.TicTacToeProcessor{}),
+			uModel.TicTacToeType: NewDefaultGameInteractor(cache, db, dService.TicTacToeProcessor{}),
 		},
 	}
 }

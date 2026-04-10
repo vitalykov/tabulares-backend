@@ -5,11 +5,14 @@ import (
 	"net/http"
 	"time"
 
+	"board-games/config"
 	"board-games/internal/delivery/handlers"
 	"board-games/internal/delivery/routes"
 	"board-games/internal/repository/cache"
+	"board-games/internal/repository/pg"
 	"board-games/internal/usecases/boundaries"
 	"board-games/internal/usecases/service"
+	"board-games/pkg/db"
 
 	"go.uber.org/fx"
 )
@@ -43,10 +46,16 @@ func (s *HTTPGameServer) Shutdown(ctx context.Context) error {
 func CreateServer() fx.Option {
 	return fx.Options(
 		fx.Provide(
+			config.NewDBConfig,
 			NewHTTPGameServer,
 			routes.NewRouter,
 			fx.Annotate(
 				cache.NewGameCache,
+				fx.As(new(boundaries.GameCacheRepository)),
+			),
+			db.NewPostgresPool,
+			fx.Annotate(
+				pg.NewPGGameRepository,
 				fx.As(new(boundaries.GameRepository)),
 			),
 			service.NewGameMaster,
