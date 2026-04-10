@@ -8,9 +8,14 @@ import (
 	"github.com/google/uuid"
 )
 
+type (
+	UserID = uuid.UUID
+	GameID = uuid.UUID
+)
+
 type User struct {
-	UserID    uuid.UUID `json:"user_id"`
-	Login     string    `json:"login"`
+	UserID    UserID    `json:"user_id"`
+	Username  string    `json:"login"`
 	Password  string    `json:"password"`
 	CreatedAt time.Time `json:"created_at"`
 }

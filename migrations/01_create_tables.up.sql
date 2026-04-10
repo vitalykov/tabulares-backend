@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS users (
 	user_id    UUID PRIMARY KEY          DEFAULT uuidv7(),
-	login      VARCHAR(50)      NOT NULL CHECK (octet_length(login) >= 3),
+	username   VARCHAR(50)      NOT NULL CHECK (octet_length(username) >= 3),
 	password   TEXT             NOT NULL CHECK (octet_length(password) >= 8),
 	created_at TIMESTAMP        NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
