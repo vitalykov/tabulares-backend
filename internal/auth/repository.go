@@ -1,11 +1,14 @@
 package auth
 
-import "board-games/internal/domain/model"
+import (
+	uModel "board-games/internal/auth/usecase/model"
+	dModel "board-games/internal/domain/model"
+)
 
 type UserRepo interface {
-	Register(user *model.User) error
-	Update(user *model.User) error
-	GetByID(userID model.UserID) (*model.User, error)
-	FindByUsername(username string) (*model.User, error)
-	Delete(userID model.UserID) error
+	Register(user *uModel.User) error
+	Update(user *uModel.User) error
+	GetByID(userID dModel.UserID) (*uModel.User, error)
+	FindByUsername(username string) (*uModel.User, error)
+	Delete(userID dModel.UserID) error
 }
