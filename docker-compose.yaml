@@ -3,11 +3,11 @@ networks:
     driver: bridge
 
 services:
-  backend:
-    container_name: backend
+  games:
+    container_name: games
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: docker/games/Dockerfile
     environment:
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
@@ -16,6 +16,25 @@ services:
     restart: unless-stopped
     ports:
       - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - web
+  
+  auth:
+    container_name: auth
+    build:
+      context: .
+      dockerfile: docker/auth/Dockerfile
+    environment:
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      DB_HOST: postgres
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
     depends_on:
       postgres:
         condition: service_healthy
