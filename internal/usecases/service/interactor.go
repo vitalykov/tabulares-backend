@@ -94,7 +94,7 @@ func (gi *DefaultGameInteractor[T]) StopGame(gameInfo *uModel.GameInfo) error {
 	if len(gameInfo.Moves) == 0 {
 		return errors.New("No moves yet. Nothing to stop")
 	}
-	err := gi.cache.Store(gameInfo)
+	err := gi.cache.StoreGame(gameInfo)
 	if err != nil {
 		return err
 	}
@@ -107,7 +107,7 @@ func (gi *DefaultGameInteractor[T]) StopGame(gameInfo *uModel.GameInfo) error {
 }
 
 func (gi *DefaultGameInteractor[T]) CancelGame(gameInfo *uModel.GameInfo) error {
-	gi.cache.Delete(gameInfo.ID)
+	gi.cache.DeleteGame(gameInfo.ID)
 	return nil
 }
 

@@ -45,14 +45,14 @@ func (gm GameMaster) CreateGame(newGameInfo uModel.NewGameInfo) (*uModel.GameInf
 		AdditionalInfo: newGameInfo.AdditionalInfo,
 		Game:           game,
 	}
-	if err := gm.cache.Store(gameInfo); err != nil {
+	if err := gm.cache.StoreGame(gameInfo); err != nil {
 		return nil, err
 	}
 	return gameInfo, nil
 }
 
 func (gm GameMaster) LoadGame(gameUUID uModel.UUID) (*uModel.GameInfo, error) {
-	gameInfo, err := gm.cache.Load(gameUUID)
+	gameInfo, err := gm.cache.GetGame(gameUUID)
 	if err == nil {
 		return gameInfo, nil
 	}
@@ -60,7 +60,7 @@ func (gm GameMaster) LoadGame(gameUUID uModel.UUID) (*uModel.GameInfo, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err := gm.cache.Store(gameInfo); err != nil {
+	if err := gm.cache.StoreGame(gameInfo); err != nil {
 		return nil, err
 	}
 	return gameInfo, nil
@@ -78,5 +78,9 @@ func (gm GameMaster) AddPlayer(playerID uModel.PlayerID, gameInfo *uModel.GameIn
 }
 
 func (gm GameMaster) GetOngoingGames() ([]*uModel.GameInfo, error) {
-	return gm.cache.GetAll()
+	return gm.cache.GetAllGames()
+}
+
+func (gm GameMaster) GetPlayerGames(playerID uModel.PlayerID) ([]*uModel.GameInfo, error) {
+	return gm.cache.GetPlayerGames(playerID)
 }

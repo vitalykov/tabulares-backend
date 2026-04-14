@@ -26,6 +26,7 @@ type Handlers interface {
 	GetHint() httpHandler
 	GetOngoingGames() httpHandler
 	AddPlayer() httpHandler
+	GetPlayerGames() httpHandler
 }
 
 type GameHandlers struct {
@@ -369,5 +370,31 @@ func (h *GameHandlers) AddPlayer() httpHandler {
 		w.WriteHeader(http.StatusOK)
 		w.Write(output)
 		log.Println("Game:", gameInfo.ID.String(), "Player:", playerID.String(), "Added")
+	}
+}
+
+func (h *GameHandlers) GetPlayerGames() httpHandler {
+	return func(w http.ResponseWriter, r *http.Request) {
+		playerID, err := uuid.Parse(r.PathValue("id"))
+		if err != nil {
+			log.Println("GameHandlers.mappers.GetPlayerID:", err)
+			http.Error(w, "Error: can't get player id", http.StatusBadRequest)
+			return
+		}
+		games, err := h.gameMaster.GetPlayerGames(playerID)
+		if err != nil {
+			log.Println("GameHandlers.gameMaster.GetPlayerGames:", err)
+			http.Error(w, "Error: can't get player games", http.StatusBadRequest)
+			return
+		}
+		output, err := mappers.ToPlayerGamesResponse(games)
+		if err != nil {
+			log.Println("GameHandlers.mappers.ToPlayerGamesResponse:", err)
+			http.Error(w, "Error: can't convert player games to response", http.StatusBadRequest)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		w.Write(output)
+		log.Println("Player:", playerID.String(), "Games:", len(games))
 	}
 }

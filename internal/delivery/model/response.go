@@ -35,3 +35,7 @@ type NewGameResponse struct {
 type OngoingGamesResponse struct {
 	Games []*GameResponseFull `json:"games"`
 }
+
+type PlayerGamesResponse struct {
+	Games []*GameResponseFull `json:"games"`
+}
