@@ -1,8 +1,10 @@
 package routes
 
 import (
-	"board-games/internal/delivery/handlers"
 	"net/http"
+
+	"board-games/internal/delivery/handlers"
+	"board-games/pkg/web"
 )
 
 func NewRouter(h *handlers.GameHandlers) *http.ServeMux {
@@ -11,27 +13,16 @@ func NewRouter(h *handlers.GameHandlers) *http.ServeMux {
 	return router
 }
 
-const GamePath = "/game/"
-
-const (
-	GET    = "GET"
-	POST   = "POST"
-	PUT    = "PUT"
-	DELETE = "DELETE"
-)
-
-func makeGamePath(method, path string) string {
-	return method + " " + GamePath + path
-}
+const gamePath = "game"
 
 func MapHandlers(mux *http.ServeMux, h *handlers.GameHandlers) {
-	mux.HandleFunc(makeGamePath(POST, "create/"), h.CreateGame())
-	mux.HandleFunc(makeGamePath(GET, "load/{id}/"), h.LoadGame())
-	mux.HandleFunc(makeGamePath(PUT, "start/{id}/"), h.StartGame())
-	mux.HandleFunc(makeGamePath(PUT, "stop/{id}/"), h.StopGame())
-	mux.HandleFunc(makeGamePath(DELETE, "cancel/{id}/"), h.CancelGame())
-	mux.HandleFunc(makeGamePath(POST, "move/{id}/"), h.MakeMove())
-	mux.HandleFunc(makeGamePath(POST, "ai_move/{id}/"), h.MakeAIMove())
-	mux.HandleFunc(makeGamePath(PUT, "undo/{id}/"), h.UndoMove())
-	mux.HandleFunc(makeGamePath(GET, "hint/{id}/"), h.GetHint())
+	mux.HandleFunc(web.MakePath(web.POST, gamePath, "create"), h.CreateGame())
+	mux.HandleFunc(web.MakePath(web.GET, gamePath, "load/{id}"), h.LoadGame())
+	mux.HandleFunc(web.MakePath(web.PUT, gamePath, "start/{id}"), h.StartGame())
+	mux.HandleFunc(web.MakePath(web.PUT, gamePath, "stop/{id}"), h.StopGame())
+	mux.HandleFunc(web.MakePath(web.DELETE, gamePath, "cancel/{id}"), h.CancelGame())
+	mux.HandleFunc(web.MakePath(web.POST, gamePath, "move/{id}"), h.MakeMove())
+	mux.HandleFunc(web.MakePath(web.POST, gamePath, "ai_move/{id}"), h.MakeAIMove())
+	mux.HandleFunc(web.MakePath(web.PUT, gamePath, "undo/{id}"), h.UndoMove())
+	mux.HandleFunc(web.MakePath(web.GET, gamePath, "hint/{id}"), h.GetHint())
 }
