@@ -5,6 +5,7 @@ import "board-games/internal/usecases/model"
 type GameCacheRepository interface {
 	Store(gameInfo *model.GameInfo) error
 	Load(gameID model.UUID) (*model.GameInfo, error)
+	GetAll() ([]*model.GameInfo, error)
 	Delete(gameID model.UUID) error
 }
 

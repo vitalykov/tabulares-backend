@@ -24,6 +24,15 @@ func GetNewGameRequest(data []byte) (dModel.NewGameRequest, error) {
 	return gameInput, nil
 }
 
+func GetAddPlayerRequest(data []byte) (dModel.AddPlayerRequest, error) {
+	var addPlayerInput dModel.AddPlayerRequest
+	err := json.Unmarshal(data, &addPlayerInput)
+	if err != nil {
+		return dModel.AddPlayerRequest{}, err
+	}
+	return addPlayerInput, nil
+}
+
 // func GetLoadGameInput(data []byte) (dModel.LoadGameInput, error) {
 // 	var loadInput dModel.LoadGameInput
 // 	err := json.Unmarshal(data, &loadInput)
@@ -54,4 +63,8 @@ func ToNewGameInfo(input dModel.NewGameRequest) uModel.NewGameInfo {
 		Players:        input.Players,
 		AdditionalInfo: input.AdditionalInfo,
 	}
+}
+
+func ToPlayerID(playerInput dModel.AddPlayerRequest) (uModel.PlayerID, error) {
+	return playerInput.PlayerID, nil
 }

@@ -66,11 +66,17 @@ func (gm GameMaster) LoadGame(gameUUID uModel.UUID) (*uModel.GameInfo, error) {
 	return gameInfo, nil
 }
 
-// Temporary unused
 func (gm GameMaster) AddPlayer(playerID uModel.PlayerID, gameInfo *uModel.GameInfo) error {
+	if gameInfo.Status != uModel.ReadyToStart {
+		return errors.New("Game is not ready to start")
+	}
 	if slices.Contains(gameInfo.Players, playerID) {
 		return errors.New("Player already in the game")
 	}
 	gameInfo.Players = append(gameInfo.Players, playerID)
 	return nil
+}
+
+func (gm GameMaster) GetOngoingGames() ([]*uModel.GameInfo, error) {
+	return gm.cache.GetAll()
 }

@@ -25,4 +25,6 @@ func MapHandlers(mux *http.ServeMux, h *handlers.GameHandlers) {
 	mux.HandleFunc(web.MakePath(web.POST, gamePath, "ai_move/{id}"), h.MakeAIMove())
 	mux.HandleFunc(web.MakePath(web.PUT, gamePath, "undo/{id}"), h.UndoMove())
 	mux.HandleFunc(web.MakePath(web.GET, gamePath, "hint/{id}"), h.GetHint())
+	mux.HandleFunc(web.MakePath(web.GET, gamePath, "ongoing"), h.GetOngoingGames())
+	mux.HandleFunc(web.MakePath(web.POST, gamePath, "add_player/{id}"), h.AddPlayer())
 }

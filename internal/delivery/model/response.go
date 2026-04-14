@@ -31,3 +31,7 @@ type NewGameResponse struct {
 	BoardHeight    int              `json:"board_height"`
 	AdditionalInfo string           `json:"additional_info,omitempty"`
 }
+
+type OngoingGamesResponse struct {
+	Games []*GameResponseFull `json:"games"`
+}

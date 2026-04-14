@@ -30,6 +30,10 @@ func (gc *GameCache) Load(gameID model.UUID) (*model.GameInfo, error) {
 	return gameInfo, nil
 }
 
+func (gc *GameCache) GetAll() ([]*model.GameInfo, error) {
+	return gc.cache.GetAll(), nil
+}
+
 func (gc *GameCache) Store(gameInfo *model.GameInfo) error {
 	gc.cache.Set(gameInfo.ID, gameInfo)
 	return nil

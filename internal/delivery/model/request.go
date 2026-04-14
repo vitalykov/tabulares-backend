@@ -14,3 +14,7 @@ type NewGameRequest struct {
 	BoardHeight    int              `json:"board_height"`
 	AdditionalInfo string           `json:"additional_info"`
 }
+
+type AddPlayerRequest struct {
+	PlayerID model.PlayerID `json:"player_id"`
+}
