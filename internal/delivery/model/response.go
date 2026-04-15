@@ -11,23 +11,33 @@ type GameResponse struct {
 }
 
 type GameResponseFull struct {
-	ID             model.UUID       `json:"id"`
+	ID             model.GameID       `json:"id"`
+	Name           string             `json:"name"`
+	BoardWidth     int                `json:"board_width"`
+	BoardHeight    int                `json:"board_height"`
+	Players        []model.PlayerInfo `json:"players"`
+	Moves          []model.MoveInfo   `json:"moves"`
+	Winner         model.PlayerID     `json:"winner"`
+	Status         string             `json:"status"`
+	Turn           model.PlayerID     `json:"turn"`
+	AdditionalInfo string             `json:"additional_info,omitempty"`
+}
+
+// Deprecated
+type NewGameResponse struct {
+	ID             model.GameID     `json:"id"`
 	Name           string           `json:"name"`
+	MaxPlayers     int              `json:"max_players"`
+	Players        []model.PlayerID `json:"players"`
 	BoardWidth     int              `json:"board_width"`
 	BoardHeight    int              `json:"board_height"`
-	Players        []model.PlayerID `json:"players"`
-	Moves          []model.MoveInfo `json:"moves"`
-	Winner         model.PlayerID   `json:"winner"`
-	Status         string           `json:"status"`
-	Turn           model.PlayerID   `json:"turn"`
 	AdditionalInfo string           `json:"additional_info,omitempty"`
 }
 
-type NewGameResponse struct {
-	ID             model.UUID       `json:"id"`
-	Name           string           `json:"name"`
-	Players        []model.PlayerID `json:"players"`
-	BoardWidth     int              `json:"board_width"`
-	BoardHeight    int              `json:"board_height"`
-	AdditionalInfo string           `json:"additional_info,omitempty"`
+type OngoingGamesResponse struct {
+	Games []*GameResponseFull `json:"games"`
+}
+
+type PlayerGamesResponse struct {
+	Games []*GameResponseFull `json:"games"`
 }

@@ -5,20 +5,25 @@ type MoveInfo struct {
 	MoveRepr string   `json:"move"`
 }
 
+type PlayerInfo struct {
+	PlayerID PlayerID     `json:"player_id"`
+	Status   PlayerStatus `json:"status"`
+}
+
 type NewGameInfo struct {
 	Type           GameType
 	BoardWidth     int
 	BoardHeight    int
-	Players        []PlayerID
+	Players        []PlayerInfo
 	AdditionalInfo string
 }
 
 type GameInfo struct {
-	ID             UUID
+	ID             GameID
 	Type           GameType
 	BoardWidth     int
 	BoardHeight    int
-	Players        []PlayerID
+	Players        []PlayerInfo
 	Moves          []MoveInfo
 	Winner         PlayerID
 	Status         GameStatus

@@ -24,6 +24,9 @@ type Handlers interface {
 	MakeAIMove() httpHandler
 	UndoMove() httpHandler
 	GetHint() httpHandler
+	GetOngoingGames() httpHandler
+	AddPlayer() httpHandler
+	GetPlayerGames() httpHandler
 }
 
 type GameHandlers struct {
@@ -42,28 +45,33 @@ func (h *GameHandlers) CreateGame() httpHandler {
 	return func(w http.ResponseWriter, r *http.Request) {
 		data, err := io.ReadAll(r.Body)
 		if err != nil {
-			log.Println(err)
-			http.Error(w, "Error: ", http.StatusBadRequest)
+			log.Println("GameHandlers.io.ReadAll:", err)
+			http.Error(w, "Error: can't read request body", http.StatusBadRequest)
 			return
 		}
 		input, err := mappers.GetNewGameRequest(data)
 		if err != nil {
-			log.Println(err)
-			http.Error(w, "Error: ", http.StatusBadRequest)
+			log.Println("GameHandlers.mappers.GetNewGameRequest:", err)
+			http.Error(w, "Error: can't parse request body", http.StatusBadRequest)
 			return
 		}
-		info := mappers.ToNewGameInfo(input)
+		info, err := mappers.ToNewGameInfo(input)
+		if err != nil {
+			log.Println("GameHandlers.mappers.ToNewGameInfo:", err)
+			http.Error(w, "Error: can't convert new game info", http.StatusBadRequest)
+			return
+		}
 		gameInfo, err := h.gameMaster.CreateGame(info)
 		if err != nil {
-			log.Println(err)
-			http.Error(w, "Error: ", http.StatusBadRequest)
+			log.Println("GameHandlers.gameMaster.CreateGame:", err)
+			http.Error(w, "Error:	can't create game", http.StatusBadRequest)
 			return
 		}
-		output, err := mappers.ToNewGameResponse(gameInfo)
+		output, err := mappers.ToGameResponseFull(gameInfo)
 		if err != nil {
 			h.gameInteractor.CancelGame(gameInfo)
-			log.Println(err)
-			http.Error(w, "Error:", http.StatusBadRequest)
+			log.Println("GameHandlers.mappers.ToNewGameResponse:", err)
+			http.Error(w, "Error: can't convert new game response", http.StatusBadRequest)
 		}
 		w.WriteHeader(http.StatusCreated)
 		w.Write(output)
@@ -71,6 +79,7 @@ func (h *GameHandlers) CreateGame() httpHandler {
 	}
 }
 
+// TODO: Maybe move this function to usecases
 func (h *GameHandlers) getGameInfo(id string) (*model.GameInfo, error) {
 	gameID, err := uuid.Parse(id)
 	if err != nil {
@@ -116,8 +125,8 @@ func (h *GameHandlers) LoadGame() httpHandler {
 			http.Error(w, "Error:", http.StatusBadRequest)
 			return
 		}
-		if gameInfo.Status != model.Finished {
-			gameInfo.Status = model.ReadyToStart
+		if gameInfo.Status != model.GameFinished {
+			gameInfo.Status = model.GameWaitingForPlayers
 		}
 		output, err := mappers.ToGameResponseFull(gameInfo)
 		if err != nil {
@@ -174,11 +183,11 @@ func (h *GameHandlers) MakeMove() httpHandler {
 			http.Error(w, "Error:", http.StatusBadRequest)
 			return
 		}
-		if gameInfo.Status != model.InProgress {
-			log.Println("Game is ", gameInfo.Status.String(), "but should be ", model.InProgress.String())
-			http.Error(w, "Error:", http.StatusBadRequest)
-			return
-		}
+		// if gameInfo.Status != model.GameInProgress {
+		// 	log.Println("Game is ", gameInfo.Status.String(), "but should be ", model.GameInProgress.String())
+		// 	http.Error(w, "Error:", http.StatusBadRequest)
+		// 	return
+		// }
 		data, err := io.ReadAll(r.Body)
 		if err != nil {
 			log.Println(err)
@@ -217,11 +226,11 @@ func (h *GameHandlers) MakeAIMove() httpHandler {
 			http.Error(w, "Error:", http.StatusBadRequest)
 			return
 		}
-		if gameInfo.Status != model.InProgress {
-			log.Println("Game status:", gameInfo.Status.String(), "Expected:", model.InProgress.String())
-			http.Error(w, "Error:", http.StatusBadRequest)
-			return
-		}
+		// if gameInfo.Status != model.GameInProgress {
+		// 	log.Println("Game status:", gameInfo.Status.String(), "Expected:", model.GameInProgress.String())
+		// 	http.Error(w, "Error:", http.StatusBadRequest)
+		// 	return
+		// }
 		moveInfo, err := h.gameInteractor.GetHint(gameInfo)
 		if err != nil {
 			log.Println(err)
@@ -279,11 +288,11 @@ func (h *GameHandlers) GetHint() httpHandler {
 			http.Error(w, "Error:", http.StatusBadRequest)
 			return
 		}
-		if gameInfo.Status != model.InProgress {
-			log.Println("Game status:", gameInfo.Status.String(), "Expected:", model.InProgress.String())
-			http.Error(w, "Error:", http.StatusBadRequest)
-			return
-		}
+		// if gameInfo.Status != model.GameInProgress {
+		// 	log.Println("Game status:", gameInfo.Status.String(), "Expected:", model.GameInProgress.String())
+		// 	http.Error(w, "Error:", http.StatusBadRequest)
+		// 	return
+		// }
 		moveInfo, err := h.gameInteractor.GetHint(gameInfo)
 		if err != nil {
 			log.Println(err)
@@ -299,5 +308,99 @@ func (h *GameHandlers) GetHint() httpHandler {
 		w.WriteHeader(http.StatusOK)
 		w.Write(output)
 		log.Println("Game:", gameInfo.ID.String(), "Player:", moveInfo.PlayerID, "Move:", moveInfo.MoveRepr)
+	}
+}
+
+func (h *GameHandlers) GetOngoingGames() httpHandler {
+	return func(w http.ResponseWriter, r *http.Request) {
+		games, err := h.gameMaster.GetOngoingGames()
+		if err != nil {
+			log.Println("GameHandlers.gameMaster.GetOngoingGames:", err)
+			http.Error(w, "Error: can't get ongoing games", http.StatusBadRequest)
+			return
+		}
+		output, err := mappers.ToOngoingGamesResponse(games)
+		if err != nil {
+			log.Println("GameHandlers.mappers.ToOngoingGamesResponse:", err)
+			http.Error(w, "Error: can't convert ongoing games to response", http.StatusBadRequest)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		w.Write(output)
+		log.Println("Ongoing games:", len(games))
+	}
+}
+
+func (h *GameHandlers) AddPlayer() httpHandler {
+	return func(w http.ResponseWriter, r *http.Request) {
+		gameInfo, err := h.getGameInfo(r.PathValue("id"))
+		if err != nil {
+			log.Println("GameHandlers.getGameInfo:", err)
+			http.Error(w, "Error: invalid game id", http.StatusBadRequest)
+			return
+		}
+		// if gameInfo.Status != model.GameReadyToStart {
+		// 	log.Println("Game status:", gameInfo.Status.String(), "Expected:", model.GameInProgress.String())
+		// 	http.Error(w, "Error: game is not ready to start", http.StatusBadRequest)
+		// 	return
+		// }
+		data, err := io.ReadAll(r.Body)
+		if err != nil {
+			log.Println("GameHandlers.io.ReadAll:", err)
+			http.Error(w, "Error: can't read request body", http.StatusBadRequest)
+			return
+		}
+		input, err := mappers.GetAddPlayerRequest(data)
+		if err != nil {
+			log.Println("GameHandlers.mappers.GetAddPlayerRequest:", err)
+			http.Error(w, "Error: can't parse request body", http.StatusBadRequest)
+			return
+		}
+		playerID, err := mappers.ToPlayerID(input)
+		if err != nil {
+			log.Println("GameHandlers.mappers.ToPlayerID:", err)
+			http.Error(w, "Error: can't convert player id", http.StatusBadRequest)
+			return
+		}
+		if err = h.gameMaster.AddPlayer(playerID, gameInfo); err != nil {
+			log.Println("GameHandlers.gameInteractor.AddPlayer:", err)
+			http.Error(w, "Error: can't add player", http.StatusBadRequest)
+			return
+		}
+		output, err := mappers.ToGameResponseFull(gameInfo)
+		if err != nil {
+			log.Println("GameHandlers.mappers.ToGameResponse:", err)
+			http.Error(w, "Error: can't convert game to response", http.StatusBadRequest)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		w.Write(output)
+		log.Println("Game:", gameInfo.ID.String(), "Player:", playerID.String(), "Added")
+	}
+}
+
+func (h *GameHandlers) GetPlayerGames() httpHandler {
+	return func(w http.ResponseWriter, r *http.Request) {
+		playerID, err := uuid.Parse(r.PathValue("id"))
+		if err != nil {
+			log.Println("GameHandlers.mappers.GetPlayerID:", err)
+			http.Error(w, "Error: can't get player id", http.StatusBadRequest)
+			return
+		}
+		games, err := h.gameMaster.GetPlayerGames(playerID)
+		if err != nil {
+			log.Println("GameHandlers.gameMaster.GetPlayerGames:", err)
+			http.Error(w, "Error: can't get player games", http.StatusBadRequest)
+			return
+		}
+		output, err := mappers.ToPlayerGamesResponse(games)
+		if err != nil {
+			log.Println("GameHandlers.mappers.ToPlayerGamesResponse:", err)
+			http.Error(w, "Error: can't convert player games to response", http.StatusBadRequest)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		w.Write(output)
+		log.Println("Player:", playerID.String(), "Games:", len(games))
 	}
 }

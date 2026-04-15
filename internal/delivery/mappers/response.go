@@ -44,22 +44,65 @@ func ToGameResponseFull(gameInfo *uModel.GameInfo) ([]byte, error) {
 	return json.Marshal(output)
 }
 
-func ToNewGameResponse(gameInfo *uModel.GameInfo) ([]byte, error) {
-	output := dModel.NewGameResponse{
-		ID:             gameInfo.ID,
-		Name:           gameInfo.Type.String(),
-		Players:        gameInfo.Players,
-		BoardWidth:     gameInfo.BoardWidth,
-		BoardHeight:    gameInfo.BoardHeight,
-		AdditionalInfo: gameInfo.AdditionalInfo,
-	}
-	return json.Marshal(output)
-}
+// Deprecated
+// func ToNewGameResponse(gameInfo *uModel.GameInfo) ([]byte, error) {
+// 	output := dModel.NewGameResponse{
+// 		ID:   gameInfo.ID,
+// 		Name: gameInfo.Type.String(),
+// 		Players:        gameInfo.Players,
+// 		BoardWidth:     gameInfo.BoardWidth,
+// 		BoardHeight:    gameInfo.BoardHeight,
+// 		AdditionalInfo: gameInfo.AdditionalInfo,
+// 	}
+// 	return json.Marshal(output)
+// }
 
 func ToMoveRequest(moveInfo uModel.MoveInfo) ([]byte, error) {
 	output := dModel.MoveRequest{
 		PlayerID: moveInfo.PlayerID,
 		Move:     moveInfo.MoveRepr,
+	}
+	return json.Marshal(output)
+}
+
+func ToOngoingGamesResponse(games []*uModel.GameInfo) ([]byte, error) {
+	output := dModel.OngoingGamesResponse{
+		Games: make([]*dModel.GameResponseFull, 0, len(games)),
+	}
+	for _, gameInfo := range games {
+		output.Games = append(output.Games, &dModel.GameResponseFull{
+			ID:             gameInfo.ID,
+			Name:           gameInfo.Type.String(),
+			BoardWidth:     gameInfo.BoardWidth,
+			BoardHeight:    gameInfo.BoardHeight,
+			Players:        gameInfo.Players,
+			Moves:          gameInfo.Moves,
+			Winner:         gameInfo.Winner,
+			Status:         gameInfo.Status.String(),
+			Turn:           gameInfo.Turn,
+			AdditionalInfo: gameInfo.AdditionalInfo,
+		})
+	}
+	return json.Marshal(output)
+}
+
+func ToPlayerGamesResponse(games []*uModel.GameInfo) ([]byte, error) {
+	output := dModel.PlayerGamesResponse{
+		Games: make([]*dModel.GameResponseFull, 0, len(games)),
+	}
+	for _, gameInfo := range games {
+		output.Games = append(output.Games, &dModel.GameResponseFull{
+			ID:             gameInfo.ID,
+			Name:           gameInfo.Type.String(),
+			BoardWidth:     gameInfo.BoardWidth,
+			BoardHeight:    gameInfo.BoardHeight,
+			Players:        gameInfo.Players,
+			Moves:          gameInfo.Moves,
+			Winner:         gameInfo.Winner,
+			Status:         gameInfo.Status.String(),
+			Turn:           gameInfo.Turn,
+			AdditionalInfo: gameInfo.AdditionalInfo,
+		})
 	}
 	return json.Marshal(output)
 }

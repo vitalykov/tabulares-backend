@@ -84,6 +84,12 @@ func TestLRUCacheInt(t *testing.T) {
 				t.Errorf("%s: cache[%d] = %d. Expected: %d.\n", tt.name, i, slice[i], tt.expected[i])
 			}
 		}
+		all := cache.GetAll()
+		for i := range all {
+			if all[i] != tt.expected[i] {
+				t.Errorf("%s: cache.GetAll()[%d] = %d. Expected: %d.\n", tt.name, i, all[i], tt.expected[i])
+			}
+		}
 		// for _, num := range tt.expected {
 		// 	if _, ok := cache.Get(num); !ok {
 		// 		t.Errorf("%s: %d not found in cache.\n", tt.name, num)
@@ -171,6 +177,12 @@ func TestLRUCacheString(t *testing.T) {
 				t.Errorf("%s: %s not found in cache.\n", tt.name, num)
 			}
 		}
+		// all := cache.GetAll()
+		// for i := range all {
+		// 	if all[i] != tt.expected[i] {
+		// 		t.Errorf("%s: cache.GetAll()[%d] = %s. Expected: %s.\n", tt.name, i, all[i], tt.expected[i])
+		// 	}
+		// }
 		cache.Clear()
 		if cache.Size() != 0 {
 			t.Errorf("%s: After cache.Clear(): cache.Size() = %d. Expected: 0.\n", tt.name, cache.Size())

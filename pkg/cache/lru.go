@@ -42,6 +42,16 @@ func (lru *LRUCache[K, V]) Get(key K) (V, bool) {
 	return val, ok
 }
 
+func (lru *LRUCache[K, V]) GetAll() []V {
+	lru.mu.Lock()
+	defer lru.mu.Unlock()
+	result := make([]V, 0, lru.data.size)
+	for node := lru.data.Front(); node != lru.data.dummy; node = node.next {
+		result = append(result, node.val)
+	}
+	return result
+}
+
 func (lru *LRUCache[K, V]) Set(key K, val V) {
 	lru.mu.Lock()
 	node, ok := lru.nodes[key]

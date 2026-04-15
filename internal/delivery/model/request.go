@@ -9,8 +9,13 @@ type MoveRequest struct {
 
 type NewGameRequest struct {
 	Name           string           `json:"name"`
+	MaxPlayers     int              `json:"max_players"`
 	Players        []model.PlayerID `json:"players"`
 	BoardWidth     int              `json:"board_width"`
 	BoardHeight    int              `json:"board_height"`
 	AdditionalInfo string           `json:"additional_info"`
+}
+
+type AddPlayerRequest struct {
+	PlayerID model.PlayerID `json:"player_id"`
 }

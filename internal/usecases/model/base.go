@@ -6,11 +6,15 @@ import (
 	"github.com/google/uuid"
 )
 
-type UUID = uuid.UUID
+type (
+	GameID   = uuid.UUID
+	PlayerID = uuid.UUID
+)
 
-type PlayerID = uuid.UUID
-
-var NoWinner PlayerID = uuid.Nil
+var (
+	NoWinnerID PlayerID = uuid.Nil
+	DrawID     PlayerID = uuid.MustParse("11111111-1111-1111-1111-111111111111")
+)
 
 type GameType int
 

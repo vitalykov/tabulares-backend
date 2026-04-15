@@ -4,6 +4,7 @@ import (
 	dModel "board-games/internal/delivery/model"
 	uModel "board-games/internal/usecases/model"
 	"encoding/json"
+	"errors"
 )
 
 func GetMoveRequest(data []byte) (dModel.MoveRequest, error) {
@@ -22,6 +23,15 @@ func GetNewGameRequest(data []byte) (dModel.NewGameRequest, error) {
 		return dModel.NewGameRequest{}, err
 	}
 	return gameInput, nil
+}
+
+func GetAddPlayerRequest(data []byte) (dModel.AddPlayerRequest, error) {
+	var addPlayerInput dModel.AddPlayerRequest
+	err := json.Unmarshal(data, &addPlayerInput)
+	if err != nil {
+		return dModel.AddPlayerRequest{}, err
+	}
+	return addPlayerInput, nil
 }
 
 // func GetLoadGameInput(data []byte) (dModel.LoadGameInput, error) {
@@ -46,12 +56,32 @@ var gameTypes = map[string]uModel.GameType{
 	"tic-tac-toe": uModel.TicTacToeType,
 }
 
-func ToNewGameInfo(input dModel.NewGameRequest) uModel.NewGameInfo {
+func ToNewGameInfo(input dModel.NewGameRequest) (uModel.NewGameInfo, error) {
+	if input.MaxPlayers < len(input.Players) {
+		return uModel.NewGameInfo{}, errors.New("Max players is less than players given")
+	}
+	players := make([]uModel.PlayerInfo, input.MaxPlayers)
+	for i, PlayerID := range input.Players {
+		players[i] = uModel.PlayerInfo{
+			PlayerID: PlayerID,
+			Status:   uModel.PlayerWaiting,
+		}
+	}
+	for i := len(input.Players); i < input.MaxPlayers; i++ {
+		players[i] = uModel.PlayerInfo{
+			PlayerID: uModel.NoWinnerID,
+			Status:   uModel.PlayerWaiting,
+		}
+	}
 	return uModel.NewGameInfo{
 		Type:           gameTypes[input.Name],
 		BoardWidth:     input.BoardWidth,
 		BoardHeight:    input.BoardHeight,
-		Players:        input.Players,
+		Players:        players,
 		AdditionalInfo: input.AdditionalInfo,
-	}
+	}, nil
+}
+
+func ToPlayerID(playerInput dModel.AddPlayerRequest) (uModel.PlayerID, error) {
+	return playerInput.PlayerID, nil
 }

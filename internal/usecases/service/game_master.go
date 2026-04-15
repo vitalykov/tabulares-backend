@@ -6,7 +6,6 @@ import (
 	"board-games/internal/usecases/mappers"
 	uModel "board-games/internal/usecases/model"
 	"errors"
-	"slices"
 
 	"github.com/google/uuid"
 )
@@ -40,19 +39,19 @@ func (gm GameMaster) CreateGame(newGameInfo uModel.NewGameInfo) (*uModel.GameInf
 		BoardHeight:    newGameInfo.BoardHeight,
 		Players:        newGameInfo.Players,
 		Moves:          make([]uModel.MoveInfo, 0),
-		Winner:         uModel.NoWinner,
-		Status:         uModel.ReadyToStart,
+		Winner:         uModel.NoWinnerID,
+		Status:         uModel.GameWaitingForPlayers,
 		AdditionalInfo: newGameInfo.AdditionalInfo,
 		Game:           game,
 	}
-	if err := gm.cache.Store(gameInfo); err != nil {
+	if err := gm.cache.StoreGame(gameInfo); err != nil {
 		return nil, err
 	}
 	return gameInfo, nil
 }
 
-func (gm GameMaster) LoadGame(gameUUID uModel.UUID) (*uModel.GameInfo, error) {
-	gameInfo, err := gm.cache.Load(gameUUID)
+func (gm GameMaster) LoadGame(gameUUID uModel.GameID) (*uModel.GameInfo, error) {
+	gameInfo, err := gm.cache.GetGame(gameUUID)
 	if err == nil {
 		return gameInfo, nil
 	}
@@ -60,17 +59,49 @@ func (gm GameMaster) LoadGame(gameUUID uModel.UUID) (*uModel.GameInfo, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err := gm.cache.Store(gameInfo); err != nil {
+	if err := gm.cache.StoreGame(gameInfo); err != nil {
 		return nil, err
 	}
 	return gameInfo, nil
 }
 
-// Temporary unused
-func (gm GameMaster) AddPlayer(playerID uModel.PlayerID, gameInfo *uModel.GameInfo) error {
-	if slices.Contains(gameInfo.Players, playerID) {
-		return errors.New("Player already in the game")
+const noFreeSlot = -1
+
+func findPlayer(playerID uModel.PlayerID, players []uModel.PlayerInfo) (bool, int) {
+	for i, playerInfo := range players {
+		if playerInfo.PlayerID == playerID {
+			return true, i
+		}
+		if playerInfo.PlayerID == uModel.NoWinnerID {
+			return false, i
+		}
 	}
-	gameInfo.Players = append(gameInfo.Players, playerID)
+	return false, noFreeSlot
+}
+
+func (gm GameMaster) AddPlayer(playerID uModel.PlayerID, gameInfo *uModel.GameInfo) error {
+	if gameInfo.Status != uModel.GameWaitingForPlayers {
+		return errors.New("Game is not waiting for players")
+	}
+	ok, i := findPlayer(playerID, gameInfo.Players)
+	if i == noFreeSlot {
+		return errors.New("No free slot for player")
+	}
+	if ok {
+		gameInfo.Players[i].Status = uModel.PlayerReady
+	} else {
+		gameInfo.Players[i] = uModel.PlayerInfo{
+			PlayerID: playerID,
+			Status:   uModel.PlayerReady,
+		}
+	}
 	return nil
+}
+
+func (gm GameMaster) GetOngoingGames() ([]*uModel.GameInfo, error) {
+	return gm.cache.GetAllGames()
+}
+
+func (gm GameMaster) GetPlayerGames(playerID uModel.PlayerID) ([]*uModel.GameInfo, error) {
+	return gm.cache.GetPlayerGames(playerID)
 }

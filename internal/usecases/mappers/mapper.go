@@ -43,7 +43,7 @@ func ticTacToeToMove(moveInfo uModel.MoveInfo, gameInfo *uModel.GameInfo) (any, 
 	}
 	player := -1
 	for i := 0; i < len(gameInfo.Players); i++ {
-		if gameInfo.Players[i] == moveInfo.PlayerID {
+		if gameInfo.Players[i].PlayerID == moveInfo.PlayerID {
 			player = i
 			break
 		}
@@ -73,7 +73,7 @@ func ToMoveInfo[T dModel.FigureType](move dModel.Move[T], gameInfo *uModel.GameI
 		moveRepr = ticTacToeToMoveRepr(move)
 	}
 	return uModel.MoveInfo{
-		PlayerID: gameInfo.Players[move.Player],
+		PlayerID: gameInfo.Players[move.Player].PlayerID,
 		MoveRepr: moveRepr,
 	}
 }

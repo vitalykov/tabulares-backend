@@ -61,7 +61,7 @@ func (r *PGGameRepository) Store(gameInfo *model.GameInfo) error {
 	return nil
 }
 
-func (r *PGGameRepository) Load(gameID model.UUID) (*model.GameInfo, error) {
+func (r *PGGameRepository) Load(gameID model.GameID) (*model.GameInfo, error) {
 	return nil, nil
 }
 
@@ -69,6 +69,6 @@ func (r *PGGameRepository) FindByPlayerID(playerID model.PlayerID) ([]*model.Gam
 	return nil, nil
 }
 
-func (r *PGGameRepository) Delete(gameID model.UUID) error {
+func (r *PGGameRepository) Delete(gameID model.GameID) error {
 	return nil
 }
