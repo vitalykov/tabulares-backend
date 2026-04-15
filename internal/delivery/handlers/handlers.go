@@ -338,11 +338,11 @@ func (h *GameHandlers) AddPlayer() httpHandler {
 			http.Error(w, "Error: invalid game id", http.StatusBadRequest)
 			return
 		}
-		if gameInfo.Status != model.GameReadyToStart {
-			log.Println("Game status:", gameInfo.Status.String(), "Expected:", model.GameInProgress.String())
-			http.Error(w, "Error: game is not ready to start", http.StatusBadRequest)
-			return
-		}
+		// if gameInfo.Status != model.GameReadyToStart {
+		// 	log.Println("Game status:", gameInfo.Status.String(), "Expected:", model.GameInProgress.String())
+		// 	http.Error(w, "Error: game is not ready to start", http.StatusBadRequest)
+		// 	return
+		// }
 		data, err := io.ReadAll(r.Body)
 		if err != nil {
 			log.Println("GameHandlers.io.ReadAll:", err)
@@ -366,7 +366,7 @@ func (h *GameHandlers) AddPlayer() httpHandler {
 			http.Error(w, "Error: can't add player", http.StatusBadRequest)
 			return
 		}
-		output, err := mappers.ToGameResponse(gameInfo)
+		output, err := mappers.ToGameResponseFull(gameInfo)
 		if err != nil {
 			log.Println("GameHandlers.mappers.ToGameResponse:", err)
 			http.Error(w, "Error: can't convert game to response", http.StatusBadRequest)
