@@ -50,13 +50,13 @@ func (gc *GameCache) GetAllGames() ([]*model.GameInfo, error) {
 
 func (gc *GameCache) StoreGame(gameInfo *model.GameInfo) error {
 	gc.games.Set(gameInfo.ID, gameInfo)
-	for _, playerID := range gameInfo.Players {
-		gamesList, ok := gc.players.Get(playerID)
+	for _, playerInfo := range gameInfo.Players {
+		gamesList, ok := gc.players.Get(playerInfo.PlayerID)
 		if !ok {
 			gamesList = make([]*model.GameInfo, 0)
 		}
 		gamesList = append(gamesList, gameInfo)
-		gc.players.Set(playerID, gamesList)
+		gc.players.Set(playerInfo.PlayerID, gamesList)
 	}
 	return nil
 }
@@ -66,8 +66,8 @@ func (gc *GameCache) DeleteGame(gameID model.GameID) error {
 	if !ok {
 		return errors.New("Not found in cache")
 	}
-	for _, playerID := range gameInfo.Players {
-		gamesList, ok := gc.players.Get(playerID)
+	for _, playerInfo := range gameInfo.Players {
+		gamesList, ok := gc.players.Get(playerInfo.PlayerID)
 		if !ok {
 			return errors.New("Not found in cache")
 		}
@@ -77,7 +77,7 @@ func (gc *GameCache) DeleteGame(gameID model.GameID) error {
 				break
 			}
 		}
-		gc.players.Set(playerID, gamesList)
+		gc.players.Set(playerInfo.PlayerID, gamesList)
 	}
 	gc.games.Delete(gameID)
 	return nil

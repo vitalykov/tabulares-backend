@@ -41,7 +41,7 @@ func (gi *DefaultGameInteractor[T]) StartGame(gameInfo *uModel.GameInfo) error {
 	if len(game.Moves) == 0 {
 		game.Turn = gi.processor.FirstTurn(*game)
 	}
-	gameInfo.Turn = gameInfo.Players[game.Turn]
+	gameInfo.Turn = gameInfo.Players[game.Turn].PlayerID
 	gameInfo.Status = uModel.GameInProgress
 	return nil
 }
@@ -64,14 +64,14 @@ func (gi *DefaultGameInteractor[T]) MakeMove(gameInfo *uModel.GameInfo, moveInfo
 	game.Winner = gi.processor.GetWinner(*game)
 	if game.Winner != dModel.NoWinner {
 		if game.Winner != dModel.Draw {
-			gameInfo.Winner = gameInfo.Players[game.Winner]
+			gameInfo.Winner = gameInfo.Players[game.Winner].PlayerID
 		} else {
 			gameInfo.Winner = uModel.DrawID
 		}
 		gameInfo.Status = uModel.GameFinished
 	}
 	game.Turn = gi.processor.NextTurn(*game)
-	gameInfo.Turn = gameInfo.Players[game.Turn]
+	gameInfo.Turn = gameInfo.Players[game.Turn].PlayerID
 	return nil
 }
 
@@ -86,7 +86,7 @@ func (gi *DefaultGameInteractor[T]) UndoMove(gameInfo *uModel.GameInfo) (uModel.
 	}
 	moveInfo := gameInfo.Moves[len(gameInfo.Moves)-1]
 	gameInfo.Moves = gameInfo.Moves[:len(gameInfo.Moves)-1]
-	gameInfo.Turn = gameInfo.Players[game.Turn]
+	gameInfo.Turn = gameInfo.Players[game.Turn].PlayerID
 	gameInfo.Winner = uModel.NoWinnerID
 	gameInfo.Status = uModel.GameInProgress
 	return moveInfo, nil

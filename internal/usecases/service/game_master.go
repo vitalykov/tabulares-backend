@@ -6,7 +6,6 @@ import (
 	"board-games/internal/usecases/mappers"
 	uModel "board-games/internal/usecases/model"
 	"errors"
-	"slices"
 
 	"github.com/google/uuid"
 )
@@ -66,14 +65,36 @@ func (gm GameMaster) LoadGame(gameUUID uModel.GameID) (*uModel.GameInfo, error) 
 	return gameInfo, nil
 }
 
+const noFreeSlot = -1
+
+func findPlayer(playerID uModel.PlayerID, players []uModel.PlayerInfo) (bool, int) {
+	for i, playerInfo := range players {
+		if playerInfo.PlayerID == playerID {
+			return true, i
+		}
+		if playerInfo.PlayerID == uModel.NoWinnerID {
+			return false, i
+		}
+	}
+	return false, noFreeSlot
+}
+
 func (gm GameMaster) AddPlayer(playerID uModel.PlayerID, gameInfo *uModel.GameInfo) error {
-	if gameInfo.Status != uModel.GameReadyToStart {
-		return errors.New("Game is not ready to start")
+	if gameInfo.Status != uModel.GameWaitingForPlayers {
+		return errors.New("Game is not waiting for players")
 	}
-	if slices.Contains(gameInfo.Players, playerID) {
-		return errors.New("Player already in the game")
+	ok, i := findPlayer(playerID, gameInfo.Players)
+	if i == noFreeSlot {
+		return errors.New("No free slot for player")
 	}
-	gameInfo.Players = append(gameInfo.Players, playerID)
+	if ok {
+		gameInfo.Players[i].Status = uModel.PlayerReady
+	} else {
+		gameInfo.Players[i] = uModel.PlayerInfo{
+			PlayerID: playerID,
+			Status:   uModel.PlayerReady,
+		}
+	}
 	return nil
 }
 

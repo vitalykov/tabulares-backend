@@ -18,12 +18,16 @@ var gameNameIDs = map[ucModel.GameType]int{
 
 // Deprecated
 func ToGameData(gameInfo *ucModel.GameInfo) repoModel.GameData {
+	players := make([]ucModel.PlayerID, len(gameInfo.Players))
+	for i, playerInfo := range gameInfo.Players {
+		players[i] = playerInfo.PlayerID
+	}
 	return repoModel.GameData{
 		ID:             gameInfo.ID,
 		NameID:         gameNameIDs[gameInfo.Type],
 		BoardWidth:     gameInfo.BoardWidth,
 		BoardHeight:    gameInfo.BoardHeight,
-		Players:        gameInfo.Players,
+		Players:        players,
 		Moves:          joinMoves(gameInfo.Moves),
 		Winner:         gameInfo.Winner,
 		AdditionalInfo: gameInfo.AdditionalInfo,

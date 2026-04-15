@@ -3,11 +3,11 @@ package model
 type GameStatus int
 
 const (
-	ReadyToStart GameStatus = iota
-	WaitingForPlayers
-	InProgress
-	Stopped
-	Finished
+	GameReadyToStart GameStatus = iota
+	GameWaitingForPlayers
+	GameInProgress
+	GameStopped
+	GameFinished
 )
 
 func (s GameStatus) Int() int {
@@ -23,3 +23,10 @@ func (s GameStatus) String() string {
 		"Finished",
 	}[s.Int()]
 }
+
+type PlayerStatus int
+
+const (
+	PlayerReady PlayerStatus = iota
+	PlayerWaiting
+)

@@ -45,28 +45,33 @@ func (h *GameHandlers) CreateGame() httpHandler {
 	return func(w http.ResponseWriter, r *http.Request) {
 		data, err := io.ReadAll(r.Body)
 		if err != nil {
-			log.Println(err)
-			http.Error(w, "Error: ", http.StatusBadRequest)
+			log.Println("GameHandlers.io.ReadAll:", err)
+			http.Error(w, "Error: can't read request body", http.StatusBadRequest)
 			return
 		}
 		input, err := mappers.GetNewGameRequest(data)
 		if err != nil {
-			log.Println(err)
-			http.Error(w, "Error: ", http.StatusBadRequest)
+			log.Println("GameHandlers.mappers.GetNewGameRequest:", err)
+			http.Error(w, "Error: can't parse request body", http.StatusBadRequest)
 			return
 		}
-		info := mappers.ToNewGameInfo(input)
+		info, err := mappers.ToNewGameInfo(input)
+		if err != nil {
+			log.Println("GameHandlers.mappers.ToNewGameInfo:", err)
+			http.Error(w, "Error: can't convert new game info", http.StatusBadRequest)
+			return
+		}
 		gameInfo, err := h.gameMaster.CreateGame(info)
 		if err != nil {
-			log.Println(err)
-			http.Error(w, "Error: ", http.StatusBadRequest)
+			log.Println("GameHandlers.gameMaster.CreateGame:", err)
+			http.Error(w, "Error:	can't create game", http.StatusBadRequest)
 			return
 		}
-		output, err := mappers.ToNewGameResponse(gameInfo)
+		output, err := mappers.ToGameResponseFull(gameInfo)
 		if err != nil {
 			h.gameInteractor.CancelGame(gameInfo)
-			log.Println(err)
-			http.Error(w, "Error:", http.StatusBadRequest)
+			log.Println("GameHandlers.mappers.ToNewGameResponse:", err)
+			http.Error(w, "Error: can't convert new game response", http.StatusBadRequest)
 		}
 		w.WriteHeader(http.StatusCreated)
 		w.Write(output)

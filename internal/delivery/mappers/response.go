@@ -44,17 +44,18 @@ func ToGameResponseFull(gameInfo *uModel.GameInfo) ([]byte, error) {
 	return json.Marshal(output)
 }
 
-func ToNewGameResponse(gameInfo *uModel.GameInfo) ([]byte, error) {
-	output := dModel.NewGameResponse{
-		ID:             gameInfo.ID,
-		Name:           gameInfo.Type.String(),
-		Players:        gameInfo.Players,
-		BoardWidth:     gameInfo.BoardWidth,
-		BoardHeight:    gameInfo.BoardHeight,
-		AdditionalInfo: gameInfo.AdditionalInfo,
-	}
-	return json.Marshal(output)
-}
+// Deprecated
+// func ToNewGameResponse(gameInfo *uModel.GameInfo) ([]byte, error) {
+// 	output := dModel.NewGameResponse{
+// 		ID:   gameInfo.ID,
+// 		Name: gameInfo.Type.String(),
+// 		Players:        gameInfo.Players,
+// 		BoardWidth:     gameInfo.BoardWidth,
+// 		BoardHeight:    gameInfo.BoardHeight,
+// 		AdditionalInfo: gameInfo.AdditionalInfo,
+// 	}
+// 	return json.Marshal(output)
+// }
 
 func ToMoveRequest(moveInfo uModel.MoveInfo) ([]byte, error) {
 	output := dModel.MoveRequest{
