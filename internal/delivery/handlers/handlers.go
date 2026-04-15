@@ -79,6 +79,7 @@ func (h *GameHandlers) CreateGame() httpHandler {
 	}
 }
 
+// TODO: Maybe move this function to usecases
 func (h *GameHandlers) getGameInfo(id string) (*model.GameInfo, error) {
 	gameID, err := uuid.Parse(id)
 	if err != nil {
@@ -125,7 +126,7 @@ func (h *GameHandlers) LoadGame() httpHandler {
 			return
 		}
 		if gameInfo.Status != model.GameFinished {
-			gameInfo.Status = model.GameReadyToStart
+			gameInfo.Status = model.GameWaitingForPlayers
 		}
 		output, err := mappers.ToGameResponseFull(gameInfo)
 		if err != nil {
@@ -182,11 +183,11 @@ func (h *GameHandlers) MakeMove() httpHandler {
 			http.Error(w, "Error:", http.StatusBadRequest)
 			return
 		}
-		if gameInfo.Status != model.GameInProgress {
-			log.Println("Game is ", gameInfo.Status.String(), "but should be ", model.GameInProgress.String())
-			http.Error(w, "Error:", http.StatusBadRequest)
-			return
-		}
+		// if gameInfo.Status != model.GameInProgress {
+		// 	log.Println("Game is ", gameInfo.Status.String(), "but should be ", model.GameInProgress.String())
+		// 	http.Error(w, "Error:", http.StatusBadRequest)
+		// 	return
+		// }
 		data, err := io.ReadAll(r.Body)
 		if err != nil {
 			log.Println(err)
@@ -225,11 +226,11 @@ func (h *GameHandlers) MakeAIMove() httpHandler {
 			http.Error(w, "Error:", http.StatusBadRequest)
 			return
 		}
-		if gameInfo.Status != model.GameInProgress {
-			log.Println("Game status:", gameInfo.Status.String(), "Expected:", model.GameInProgress.String())
-			http.Error(w, "Error:", http.StatusBadRequest)
-			return
-		}
+		// if gameInfo.Status != model.GameInProgress {
+		// 	log.Println("Game status:", gameInfo.Status.String(), "Expected:", model.GameInProgress.String())
+		// 	http.Error(w, "Error:", http.StatusBadRequest)
+		// 	return
+		// }
 		moveInfo, err := h.gameInteractor.GetHint(gameInfo)
 		if err != nil {
 			log.Println(err)
@@ -287,11 +288,11 @@ func (h *GameHandlers) GetHint() httpHandler {
 			http.Error(w, "Error:", http.StatusBadRequest)
 			return
 		}
-		if gameInfo.Status != model.GameInProgress {
-			log.Println("Game status:", gameInfo.Status.String(), "Expected:", model.GameInProgress.String())
-			http.Error(w, "Error:", http.StatusBadRequest)
-			return
-		}
+		// if gameInfo.Status != model.GameInProgress {
+		// 	log.Println("Game status:", gameInfo.Status.String(), "Expected:", model.GameInProgress.String())
+		// 	http.Error(w, "Error:", http.StatusBadRequest)
+		// 	return
+		// }
 		moveInfo, err := h.gameInteractor.GetHint(gameInfo)
 		if err != nil {
 			log.Println(err)

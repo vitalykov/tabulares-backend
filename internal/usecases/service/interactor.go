@@ -47,8 +47,8 @@ func (gi *DefaultGameInteractor[T]) StartGame(gameInfo *uModel.GameInfo) error {
 }
 
 func (gi *DefaultGameInteractor[T]) MakeMove(gameInfo *uModel.GameInfo, moveInfo uModel.MoveInfo) error {
-	if gameInfo.Status == uModel.GameFinished {
-		return errors.New("Game is finished")
+	if gameInfo.Status != uModel.GameInProgress {
+		return fmt.Errorf("Game in status: %s", gameInfo.Status.String())
 	}
 	game := gameInfo.Game.(*dModel.Game[T])
 	move, err := mappers.ToMove[T](moveInfo, gameInfo)
@@ -76,6 +76,9 @@ func (gi *DefaultGameInteractor[T]) MakeMove(gameInfo *uModel.GameInfo, moveInfo
 }
 
 func (gi *DefaultGameInteractor[T]) UndoMove(gameInfo *uModel.GameInfo) (uModel.MoveInfo, error) {
+	if gameInfo.Status != uModel.GameInProgress {
+		return uModel.MoveInfo{}, fmt.Errorf("Game in status: %s", gameInfo.Status.String())
+	}
 	game := gameInfo.Game.(*dModel.Game[T])
 	if len(gameInfo.Moves) == 0 {
 		return uModel.MoveInfo{}, errors.New("No moves yet. Nothing to undo")
@@ -114,6 +117,9 @@ func (gi *DefaultGameInteractor[T]) CancelGame(gameInfo *uModel.GameInfo) error 
 }
 
 func (gi *DefaultGameInteractor[T]) GetHint(gameInfo *uModel.GameInfo) (uModel.MoveInfo, error) {
+	if gameInfo.Status != uModel.GameInProgress {
+		return uModel.MoveInfo{}, fmt.Errorf("Game in status: %s", gameInfo.Status.String())
+	}
 	game := gameInfo.Game.(*dModel.Game[T])
 	move := gi.processor.GenerateMove(*game)
 	return mappers.ToMoveInfo(move, gameInfo), nil
