@@ -119,8 +119,8 @@ func (h *GameHandlers) LoadGame() httpHandler {
 			http.Error(w, "Error:", http.StatusBadRequest)
 			return
 		}
-		if gameInfo.Status != model.Finished {
-			gameInfo.Status = model.ReadyToStart
+		if gameInfo.Status != model.GameFinished {
+			gameInfo.Status = model.GameReadyToStart
 		}
 		output, err := mappers.ToGameResponseFull(gameInfo)
 		if err != nil {
@@ -177,8 +177,8 @@ func (h *GameHandlers) MakeMove() httpHandler {
 			http.Error(w, "Error:", http.StatusBadRequest)
 			return
 		}
-		if gameInfo.Status != model.InProgress {
-			log.Println("Game is ", gameInfo.Status.String(), "but should be ", model.InProgress.String())
+		if gameInfo.Status != model.GameInProgress {
+			log.Println("Game is ", gameInfo.Status.String(), "but should be ", model.GameInProgress.String())
 			http.Error(w, "Error:", http.StatusBadRequest)
 			return
 		}
@@ -220,8 +220,8 @@ func (h *GameHandlers) MakeAIMove() httpHandler {
 			http.Error(w, "Error:", http.StatusBadRequest)
 			return
 		}
-		if gameInfo.Status != model.InProgress {
-			log.Println("Game status:", gameInfo.Status.String(), "Expected:", model.InProgress.String())
+		if gameInfo.Status != model.GameInProgress {
+			log.Println("Game status:", gameInfo.Status.String(), "Expected:", model.GameInProgress.String())
 			http.Error(w, "Error:", http.StatusBadRequest)
 			return
 		}
@@ -282,8 +282,8 @@ func (h *GameHandlers) GetHint() httpHandler {
 			http.Error(w, "Error:", http.StatusBadRequest)
 			return
 		}
-		if gameInfo.Status != model.InProgress {
-			log.Println("Game status:", gameInfo.Status.String(), "Expected:", model.InProgress.String())
+		if gameInfo.Status != model.GameInProgress {
+			log.Println("Game status:", gameInfo.Status.String(), "Expected:", model.GameInProgress.String())
 			http.Error(w, "Error:", http.StatusBadRequest)
 			return
 		}
@@ -333,8 +333,8 @@ func (h *GameHandlers) AddPlayer() httpHandler {
 			http.Error(w, "Error: invalid game id", http.StatusBadRequest)
 			return
 		}
-		if gameInfo.Status != model.ReadyToStart {
-			log.Println("Game status:", gameInfo.Status.String(), "Expected:", model.InProgress.String())
+		if gameInfo.Status != model.GameReadyToStart {
+			log.Println("Game status:", gameInfo.Status.String(), "Expected:", model.GameInProgress.String())
 			http.Error(w, "Error: game is not ready to start", http.StatusBadRequest)
 			return
 		}

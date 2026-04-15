@@ -41,7 +41,7 @@ func (gm GameMaster) CreateGame(newGameInfo uModel.NewGameInfo) (*uModel.GameInf
 		Players:        newGameInfo.Players,
 		Moves:          make([]uModel.MoveInfo, 0),
 		Winner:         uModel.NoWinnerID,
-		Status:         uModel.ReadyToStart,
+		Status:         uModel.GameWaitingForPlayers,
 		AdditionalInfo: newGameInfo.AdditionalInfo,
 		Game:           game,
 	}
@@ -67,7 +67,7 @@ func (gm GameMaster) LoadGame(gameUUID uModel.GameID) (*uModel.GameInfo, error) 
 }
 
 func (gm GameMaster) AddPlayer(playerID uModel.PlayerID, gameInfo *uModel.GameInfo) error {
-	if gameInfo.Status != uModel.ReadyToStart {
+	if gameInfo.Status != uModel.GameReadyToStart {
 		return errors.New("Game is not ready to start")
 	}
 	if slices.Contains(gameInfo.Players, playerID) {
