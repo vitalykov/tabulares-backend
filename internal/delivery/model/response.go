@@ -11,7 +11,7 @@ type GameResponse struct {
 }
 
 type GameResponseFull struct {
-	ID             model.UUID       `json:"id"`
+	ID             model.GameID     `json:"id"`
 	Name           string           `json:"name"`
 	BoardWidth     int              `json:"board_width"`
 	BoardHeight    int              `json:"board_height"`
@@ -24,7 +24,7 @@ type GameResponseFull struct {
 }
 
 type NewGameResponse struct {
-	ID             model.UUID       `json:"id"`
+	ID             model.GameID     `json:"id"`
 	Name           string           `json:"name"`
 	Players        []model.PlayerID `json:"players"`
 	BoardWidth     int              `json:"board_width"`

@@ -40,7 +40,7 @@ func (gm GameMaster) CreateGame(newGameInfo uModel.NewGameInfo) (*uModel.GameInf
 		BoardHeight:    newGameInfo.BoardHeight,
 		Players:        newGameInfo.Players,
 		Moves:          make([]uModel.MoveInfo, 0),
-		Winner:         uModel.NoWinner,
+		Winner:         uModel.NoWinnerID,
 		Status:         uModel.ReadyToStart,
 		AdditionalInfo: newGameInfo.AdditionalInfo,
 		Game:           game,
@@ -51,7 +51,7 @@ func (gm GameMaster) CreateGame(newGameInfo uModel.NewGameInfo) (*uModel.GameInf
 	return gameInfo, nil
 }
 
-func (gm GameMaster) LoadGame(gameUUID uModel.UUID) (*uModel.GameInfo, error) {
+func (gm GameMaster) LoadGame(gameUUID uModel.GameID) (*uModel.GameInfo, error) {
 	gameInfo, err := gm.cache.GetGame(gameUUID)
 	if err == nil {
 		return gameInfo, nil

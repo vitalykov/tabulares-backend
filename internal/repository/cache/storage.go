@@ -9,12 +9,12 @@ import (
 const cacheCapacity = 1_000_000
 
 type GameCache struct {
-	games   *cache.LRUCache[model.UUID, *model.GameInfo]
+	games   *cache.LRUCache[model.GameID, *model.GameInfo]
 	players *cache.LRUCache[model.PlayerID, []*model.GameInfo]
 }
 
 func NewGameCache() (*GameCache, error) {
-	games, err := cache.NewLRUCache[model.UUID, *model.GameInfo](cacheCapacity)
+	games, err := cache.NewLRUCache[model.GameID, *model.GameInfo](cacheCapacity)
 	if err != nil {
 		return nil, err
 	}
@@ -28,7 +28,7 @@ func NewGameCache() (*GameCache, error) {
 	}, nil
 }
 
-func (gc *GameCache) GetGame(gameID model.UUID) (*model.GameInfo, error) {
+func (gc *GameCache) GetGame(gameID model.GameID) (*model.GameInfo, error) {
 	gameInfo, ok := gc.games.Get(gameID)
 	if !ok {
 		return nil, errors.New("Not found in cache")
@@ -61,7 +61,7 @@ func (gc *GameCache) StoreGame(gameInfo *model.GameInfo) error {
 	return nil
 }
 
-func (gc *GameCache) DeleteGame(gameID model.UUID) error {
+func (gc *GameCache) DeleteGame(gameID model.GameID) error {
 	gameInfo, ok := gc.games.Get(gameID)
 	if !ok {
 		return errors.New("Not found in cache")

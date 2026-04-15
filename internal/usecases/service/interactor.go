@@ -85,7 +85,7 @@ func (gi *DefaultGameInteractor[T]) UndoMove(gameInfo *uModel.GameInfo) (uModel.
 	moveInfo := gameInfo.Moves[len(gameInfo.Moves)-1]
 	gameInfo.Moves = gameInfo.Moves[:len(gameInfo.Moves)-1]
 	gameInfo.Turn = gameInfo.Players[game.Turn]
-	gameInfo.Winner = uModel.NoWinner
+	gameInfo.Winner = uModel.NoWinnerID
 	gameInfo.Status = uModel.InProgress
 	return moveInfo, nil
 }

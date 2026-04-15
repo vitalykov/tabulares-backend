@@ -10,10 +10,10 @@ func (mr MockRepository) Store(_ *model.GameInfo) error {
 	return nil
 }
 
-func (mr MockRepository) Load(_ model.UUID) (*model.GameInfo, error) {
+func (mr MockRepository) Load(_ model.GameID) (*model.GameInfo, error) {
 	return nil, nil
 }
 
-func (mr MockRepository) Delete(_ model.UUID) error {
+func (mr MockRepository) Delete(_ model.GameID) error {
 	return nil
 }

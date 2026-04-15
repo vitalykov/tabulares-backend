@@ -14,7 +14,7 @@ type NewGameInfo struct {
 }
 
 type GameInfo struct {
-	ID             UUID
+	ID             GameID
 	Type           GameType
 	BoardWidth     int
 	BoardHeight    int

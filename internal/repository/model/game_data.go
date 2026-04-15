@@ -3,7 +3,7 @@ package model
 import "board-games/internal/usecases/model"
 
 type GameData struct {
-	ID             model.UUID
+	ID             model.GameID
 	NameID         int
 	BoardWidth     int
 	BoardHeight    int
